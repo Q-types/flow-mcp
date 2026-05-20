@@ -4,7 +4,32 @@
 
 ## Overview
 
-Muse MCP is the creative layer of the Flow stack. It expands prompts into rich working objects, generates analogies across domains, finds contradictions, mutates ideas through various operators, and ranks candidates for quality. When integrated with Mind, it creates a complete ideation-to-memory pipeline.
+Muse MCP is the creative layer of the Flow stack. It expands prompts into rich working objects, generates analogies across domains, finds contradictions, mutates ideas through various operators, and ranks candidates for quality. When integrated with VMind, it creates a complete ideation-to-memory pipeline.
+
+## Why This Matters
+
+### As a Standalone MCP
+
+Even without the rest of the Flow stack, Muse provides:
+
+1. **Prompt expansion**: Turn vague ideas into structured working objects
+2. **Analogy generation**: Find solutions from unrelated domains
+3. **Contradiction detection**: Surface tensions and counter-evidence early
+4. **Idea mutation**: Systematically explore variations (invert, compress, scale)
+5. **Quality ranking**: Score ideas before investing time building them
+
+### With the Full Flow Stack
+
+When integrated with VMind, Architect, Spawner, and ForgeLoop:
+
+| Integration | Benefit |
+|-------------|---------|
+| **+ VMind** | Retrieve past failures and successes to inform mutations |
+| **+ Architect** | Expand skill searches with cross-domain analogies |
+| **+ Spawner** | Find skills via structural similarity, not just keywords |
+| **+ ForgeLoop** | Generate bounded prompts that incorporate contradictions |
+
+**The compound effect**: When exploring "how to implement caching", Muse doesn't just find caching skills — it retrieves past caching failures from VMind, generates analogies ("similar to memoization in functional programming"), finds contradictions ("previous Redis deployment had connection issues"), and ranks approaches before Architect assigns the task.
 
 ## Key Features
 
@@ -231,7 +256,7 @@ muse_rank_candidates(
 
 ## Promotion Pipeline
 
-Quality-gated path from Muse to Mind:
+Quality-gated path from Muse to VMind:
 
 ```python
 # Only candidates meeting criteria are promoted
@@ -264,16 +289,16 @@ result = muse_promote_to_mind(
 | `muse_find_contradictions` | Surface tensions and counter-evidence |
 | `muse_mutate_ideas` | Apply transformation operators |
 | `muse_rank_candidates` | Score ideas on value formula |
-| `muse_promote_to_mind` | Promote quality candidates to memory |
+| `muse_promote_to_vmind` | Promote quality candidates to memory |
 | `muse_health` | Check system status |
 
-## Integration with Mind
+## Integration with VMind
 
-Muse and Mind work together in a creative pipeline:
+Muse and VMind work together in a creative pipeline:
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│ Raw Prompt  │────►│    MUSE     │────►│    MIND     │
+│ Raw Prompt  │────►│    MUSE     │────►│   VMIND     │
 │             │     │  (Expand)   │     │  (Store)    │
 └─────────────┘     └──────┬──────┘     └──────┬──────┘
                            │                   │
@@ -303,7 +328,7 @@ working = muse_expand_prompt(
     user_id="user_123"
 )
 
-# 2. Retrieve relevant context from Mind
+# 2. Retrieve relevant context from VMind
 associations = muse_retrieve_associations(
     query=working["working_object"]["goal"],
     modes=["successful_workflows", "past_failures"],
@@ -331,7 +356,7 @@ for mutation in mutations["mutations"]:
         user_id="user_123"
     )
 
-    # 6. Promote high-quality ideas to Mind
+    # 6. Promote high-quality ideas to VMind
     if ranked["value_score"] >= 0.7:
         muse_promote_to_mind(
             candidate_id=ranked["candidate_id"],

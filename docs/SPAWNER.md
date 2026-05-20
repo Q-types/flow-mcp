@@ -6,6 +6,31 @@
 
 Spawner MCP provides a library of 470+ specialist skills that encode best practices, patterns, and gotchas for various technologies and domains. It also provides validation guardrails to catch security issues, anti-patterns, and production-readiness problems before they ship.
 
+## Why This Matters
+
+### As a Standalone MCP
+
+Even without the rest of the Flow stack, Spawner provides:
+
+1. **470+ specialist skills**: From TypeScript patterns to YC playbook
+2. **Proactive gotcha detection**: Sharp edges warnings before you hit them
+3. **Security validation**: Catches SQL injection, XSS, hardcoded secrets
+4. **Stack analysis**: Auto-detects project technologies
+5. **Skill squads**: Pre-bundled skills for features (auth, payments, CRUD)
+
+### With the Full Flow Stack
+
+When integrated with VMind, Muse, Architect, and ForgeLoop:
+
+| Integration | Benefit |
+|-------------|---------|
+| **+ VMind** | Skill discovery learns from past successful combinations |
+| **+ Muse** | Find skills via cross-domain analogies |
+| **+ Architect** | Auto-load skills per team when spawning |
+| **+ ForgeLoop** | Include relevant gotchas in bounded prompts |
+
+**The compound effect**: When Architect assigns a "database" task, it queries VMind for past skill successes, expands via Muse analogies, searches Spawner with multiple queries, and returns skills ranked by: frequency across queries + VMind success history + project stack match. Next time, the outcome is recorded, improving future searches.
+
 ## Key Features
 
 ### Skill Library
@@ -282,7 +307,7 @@ architect_spawn_teams()
 ### Smart Discovery Pipeline
 
 ```
-Query → Domain Expansion → Mind (past) → Muse (analogies) → Spawner (search) → Ranked
+Query → Domain Expansion → VMind (past) → Muse (analogies) → Spawner (search) → Ranked
 ```
 
 ```python
@@ -290,7 +315,7 @@ architect_smart_discover(query="database")
 
 # Returns skills ranked by:
 # - Frequency across expanded queries
-# - Mind suggestions (past successful use)
+# - VMind suggestions (past successful use)
 # - Tag match with query
 # - Tech stack alignment
 ```

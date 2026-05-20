@@ -4,12 +4,12 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     FLOW MCP STACK                        │
+│                         FLOW MCP STACK                                  │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                 │
-│  │   SPAWNER   │◄──►│  ARCHITECT  │◄──►│    MIND     │                 │
-│  │   Skills    │    │ Orchestrate │    │   Memory    │                 │
+│  │   SPAWNER   │◄──►│  ARCHITECT  │◄──►│   VMIND     │                 │
+│  │   Skills    │    │ Orchestrate │    │Vector Memory│                 │
 │  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘                 │
 │         │                  │                  │                         │
 │         │           ┌──────┴──────┐           │                         │
@@ -25,16 +25,26 @@
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
+## What Makes This Different
+
+**This is not another markdown-file memory system.**
+
+VMind (Vector Mind) uses **768-dimensional semantic embeddings** to store and retrieve memories based on *meaning*, not just keywords. When you ask "what worked for authentication?", it doesn't grep for "auth" — it finds semantically related experiences like "JWT token rotation strategy" or "Supabase RLS policy patterns" even if they don't contain your exact words.
+
+The stack learns from every decision. Good outcomes increase memory salience. Bad outcomes decrease it. Over time, the system surfaces better patterns automatically.
+
 ## Overview
 
 The Flow MCP Stack is a suite of interconnected Model Context Protocol (MCP) servers that work together to provide intelligent, context-aware software development assistance. Each component handles a specific aspect of the development lifecycle, and together they form a self-improving system that learns from every interaction.
+
+**Start here:** [OVERVIEW.md](docs/OVERVIEW.md) — A guided introduction to the stack
 
 ## Components
 
 | Component | Purpose | Key Capabilities |
 |-----------|---------|------------------|
 | **[Architect](docs/ARCHITECT.md)** | Project orchestration & team management | Sprint planning, task assignment, quality gates, multi-team coordination |
-| **[Mind](docs/MIND.md)** | Persistent semantic memory | Long-term learning, pattern recognition, decision tracking, conflict detection |
+| **[VMind](docs/VMIND.md)** | Semantic vector memory | 768-dim embeddings, hybrid search, learning loop, conflict detection |
 | **[Muse](docs/MUSE.md)** | Creative ideation & mutation | Analogy generation, idea expansion, contradiction finding, ranked candidates |
 | **[Spawner](docs/SPAWNER.md)** | Skill library & validation | 470+ skills, sharp edge detection, guardrail checks, stack analysis |
 | **[ForgeLoop](docs/FORGELOOP.md)** | Bounded execution & tracking | Phase management, validation commands, assumption tracking, agent prompts |
@@ -44,13 +54,49 @@ The Flow MCP Stack is a suite of interconnected Model Context Protocol (MCP) ser
 ### Learning Loop
 The system improves over time by tracking outcomes:
 ```
-Decision Made → Outcome Observed → Memory Updated → Future Decisions Improved
+Decision Made → Outcome Observed → Memory Salience Updated → Future Retrieval Improved
+     │                                    │
+     │    ┌──────────────────────────────┘
+     │    │
+     │    ▼
+     │  Good outcome (+0.8) → Memory ranks higher in future queries
+     │  Bad outcome (-0.5)  → Memory ranks lower, less likely retrieved
+     │
+     └─► This compounds: successful patterns emerge, failed approaches fade
+```
+
+### Semantic Vector Memory (VMind)
+Not keyword matching — *meaning* matching:
+```
+Query: "handling user sessions"
+     │
+     ▼
+┌─────────────────────────────────────────────────────────────┐
+│  768-dim Embedding (nomic-embed-text-v1.5)                  │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ [0.023, -0.156, 0.089, ..., 0.042]                   │   │
+│  └─────────────────────────────────────────────────────┘   │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Hybrid Search: Cosine Similarity + BM25 Keyword + RRF     │
+└──────────────────────────┬──────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Finds: "JWT refresh token rotation every 15 minutes"       │
+│         "Supabase auth context propagation"                 │
+│         "Session invalidation on password change"           │
+│                                                             │
+│  (None of these contain "handling" or "sessions" literally) │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Smart Skill Discovery
 Multi-source skill search that learns what works:
 ```
-Query → Mind (past successes) → Muse (analogies) → Spawner (search) → Ranked Results
+Query → VMind (past successes) → Muse (analogies) → Spawner (search) → Ranked Results
 ```
 
 ### Plan Evaluation
@@ -74,16 +120,17 @@ flow-mcp/
 ├── README.md                 # This file
 ├── pyproject.toml            # Monorepo configuration
 ├── docs/                     # Stack documentation
+│   ├── OVERVIEW.md           # Start here - guided introduction
 │   ├── ARCHITECTURE.md       # System design
 │   ├── BENCHMARKS.md         # Performance testing
 │   ├── ARCHITECT.md          # Architect component
-│   ├── MIND.md               # Mind component
+│   ├── VMIND.md              # VMind (Vector Mind) component
 │   ├── MUSE.md               # Muse component
 │   ├── SPAWNER.md            # Spawner integration
 │   └── FORGELOOP.md          # ForgeLoop component
 └── packages/                 # MCP components
     ├── architect/            # Project orchestration
-    ├── mind/                 # Semantic memory
+    ├── vmind/                # Semantic vector memory
     ├── muse/                 # Creative ideation
     └── forgeloop/            # Bounded execution
 ```
@@ -98,7 +145,7 @@ git clone https://github.com/Q-types/flow-mcp.git
 cd flow-mcp
 
 # Install all packages (recommended)
-pip install -e packages/mind
+pip install -e packages/vmind
 pip install -e packages/muse
 pip install -e packages/architect
 pip install -e packages/forgeloop
@@ -118,9 +165,9 @@ Add to your Claude Code MCP settings (`~/.claude/settings.local.json`):
       "command": "python",
       "args": ["-m", "architect_mcp"]
     },
-    "mind": {
+    "vmind": {
       "command": "python",
-      "args": ["-m", "mind_mcp"]
+      "args": ["-m", "vmind_mcp"]
     },
     "muse": {
       "command": "python",
@@ -170,15 +217,15 @@ architect_smart_assign(
     feature="database"
 )
 
-# 5. Track decisions for learning
-mind_remember(
+# 5. Track decisions for learning (VMind)
+vmind_remember(
     content="Chose PostgreSQL with Drizzle ORM for type safety",
     memory_type="episodic",
     temporal_level=3
 )
 
 # 6. Record outcome for future improvement
-mind_decide(
+vmind_decide(
     memory_ids=["mem_123"],
     decision_summary="PostgreSQL + Drizzle worked well for real-time sync",
     outcome_quality=0.9
@@ -196,7 +243,7 @@ mind_decide(
 │  ────────          ────────           ─────────         ────────       │
 │                                                                         │
 │  ┌─────────┐      ┌─────────┐        ┌─────────┐       ┌─────────┐    │
-│  │ IdeaRalph│ ───►│Architect│ ──────►│ForgeLoop│ ─────►│  Mind   │    │
+│  │ IdeaRalph│ ───►│Architect│ ──────►│ForgeLoop│ ─────►│  VMind  │    │
 │  │ Validate│      │  Plan   │        │ Execute │       │  Learn  │    │
 │  └─────────┘      └────┬────┘        └────┬────┘       └────┬────┘    │
 │       │                │                  │                  │         │
@@ -207,7 +254,7 @@ mind_decide(
 │                              ▲                                         │
 │                              │                                         │
 │                    ┌─────────┴─────────┐                              │
-│                    │  Mind Retrieval   │                              │
+│                    │  VMind Retrieval  │                              │
 │                    │  (Past Patterns)  │                              │
 │                    └───────────────────┘                              │
 │                                                                         │
@@ -221,7 +268,7 @@ See [ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed system design and [BENC
 ### Core Principles
 
 1. **Separation of Concerns**: Each MCP handles one aspect well
-2. **Learning by Default**: Every decision feeds back into memory
+2. **Learning by Default**: Every decision feeds back into VMind
 3. **Graceful Degradation**: System works even if individual MCPs are unavailable
 4. **Explicit Context**: All context is traceable and auditable
 
@@ -232,8 +279,8 @@ User Request
     │
     ▼
 ┌─────────────┐     ┌─────────────┐
-│  Architect  │────►│    Mind     │  "What worked before?"
-│  (Router)   │◄────│  (Memory)   │
+│  Architect  │────►│   VMind     │  "What worked before?"
+│  (Router)   │◄────│  (Memory)   │  768-dim semantic search
 └──────┬──────┘     └─────────────┘
        │
        ▼
@@ -253,7 +300,7 @@ User Request
        │
        ▼
 ┌─────────────┐
-│    Mind     │  Store Outcome
+│   VMind     │  Store Outcome → Adjust Salience
 │  (Learn)    │
 └─────────────┘
 ```
@@ -268,11 +315,12 @@ The orchestration layer that coordinates teams, sprints, and tasks:
 - **Scope enforcement**: Prevents drift during long-running tasks
 - **Integration checks**: Cross-team compatibility validation
 
-### Mind MCP
-Persistent semantic memory with learning capabilities:
+### VMind MCP (Vector Mind)
+**Semantic vector memory** — not file-based, not keyword-based:
+- **768-dimensional embeddings**: nomic-ai/nomic-embed-text-v1.5
+- **Hybrid retrieval**: Cosine similarity + BM25 keyword + RRF fusion
 - **Memory types**: Episodic (events), Semantic (facts), Procedural (workflows), Preference (style)
-- **Retrieval**: Hybrid semantic + keyword search with RRF fusion
-- **Learning loop**: Outcome tracking adjusts memory salience
+- **Learning loop**: Outcome tracking adjusts memory salience over time
 - **Reflection**: Automatic synthesis of patterns and insights
 - **Conflict detection**: Identifies contradictory information
 
@@ -338,15 +386,15 @@ Score = (10 - Complexity) * 0.15
 | `architect_check_quality_gates` | Verify quality thresholds |
 | `architect_full_pipeline` | End-to-end idea to plan |
 
-### Mind Tools
+### VMind Tools
 | Tool | Description |
 |------|-------------|
-| `mind_remember` | Store a memory |
-| `mind_retrieve` | Retrieve relevant memories |
-| `mind_decide` | Track decision outcomes |
-| `mind_reflect` | Generate meta-insights |
-| `mind_conflicts` | Get memory conflicts |
-| `mind_health` | Check system status |
+| `vmind_remember` | Store a memory with 768-dim embedding |
+| `vmind_retrieve` | Semantic + keyword hybrid search |
+| `vmind_decide` | Track decision outcomes for learning |
+| `vmind_reflect` | Generate meta-insights from patterns |
+| `vmind_conflicts` | Detect contradictory memories |
+| `vmind_health` | Check system status |
 
 ### Muse Tools
 | Tool | Description |
@@ -413,7 +461,7 @@ We conducted extensive testing across individual MCPs and their combined workflo
 
 | MCP | Key Operation | p50 Latency | p99 Latency |
 |-----|---------------|-------------|-------------|
-| Mind | retrieve (10 results) | 45ms | 120ms |
+| VMind | retrieve (10 results) | 45ms | 120ms |
 | Muse | expand_prompt | 180ms | 450ms |
 | Spawner | skills search | 25ms | 80ms |
 | Architect | plan | 350ms | 900ms |

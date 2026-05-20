@@ -6,7 +6,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                           FLOW STACK                              │
+│                             FLOW STACK                                          │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                 │
 │   ┌───────────────────────────────────────────────────────────────────────┐    │
@@ -20,8 +20,9 @@
 │   ┌─────────┼──────────────────┼─────────────────────────────────────────┐    │
 │   │         │    INTELLIGENCE LAYER                                       │    │
 │   │  ┌──────▼──────┐    ┌──────▼──────┐                                  │    │
-│   │  │    MIND     │◄──►│    MUSE     │                                  │    │
-│   │  │  (Memory)   │    │ (Creative)  │                                  │    │
+│   │  │   VMIND     │◄──►│    MUSE     │                                  │    │
+│   │  │  (Vector    │    │ (Creative)  │                                  │    │
+│   │  │   Memory)   │    │             │                                  │    │
 │   │  └─────────────┘    └─────────────┘                                  │    │
 │   └──────────────────────────────────────────────────────────────────────┘    │
 │                                                                                 │
@@ -104,32 +105,102 @@ class Task:
     acceptance_criteria: list[str]
 ```
 
-### 2. Mind MCP
+### 2. VMind MCP (Vector Mind)
 
-**Role**: Persistent semantic memory with learning capabilities
+**Role**: Semantic vector memory with learning capabilities
+
+**This is not file-based memory.** VMind uses 768-dimensional embeddings to store and retrieve memories by *meaning*, not keywords.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         MIND MCP                                 │
+│                         VMIND MCP                                │
+│                    (Semantic Vector Memory)                      │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐         │
 │  │  EMBEDDING  │───►│   VECTOR    │───►│  RETRIEVAL  │         │
 │  │   Engine    │    │   Store     │    │   Engine    │         │
 │  │  (nomic)    │    │  (SQLite)   │    │ (Hybrid)    │         │
+│  │  768-dim    │    │  L2-norm    │    │ cos+BM25    │         │
 │  └─────────────┘    └─────────────┘    └──────┬──────┘         │
 │                                               │                 │
 │  ┌─────────────┐    ┌─────────────┐    ┌──────▼──────┐         │
 │  │  CONFLICT   │◄───│  LEARNING   │◄───│  SALIENCE   │         │
 │  │  Detection  │    │    Loop     │    │   Scoring   │         │
+│  │  (>0.85 sim)│    │ (outcomes)  │    │ (dynamic)   │         │
 │  └─────────────┘    └─────────────┘    └─────────────┘         │
 │                                                                  │
 │  ┌─────────────┐    ┌─────────────┐                             │
 │  │ REFLECTION  │───►│  SYNTHESIS  │                             │
 │  │  Trigger    │    │  (Insights) │                             │
+│  │  (50 mem)   │    │             │                             │
 │  └─────────────┘    └─────────────┘                             │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
+```
+
+**Vector Embedding Pipeline**:
+
+```
+Input: "We chose PostgreSQL for type safety"
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  nomic-embed-text-v1.5                                          │
+│                                                                  │
+│  text → [0.023, -0.156, 0.089, ..., 0.042]                      │
+│                     768 dimensions                               │
+│                                                                  │
+│  L2-normalized: ||v|| = 1  →  cosine = dot product              │
+└─────────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  SQLite Storage                                                  │
+│                                                                  │
+│  - Vector blob (768 floats)                                     │
+│  - FTS5 full-text index for BM25                                │
+│  - Metadata: type, salience, timestamps                          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Hybrid Retrieval**:
+
+```
+Query: "data persistence decisions"
+         │
+         ├──────────────────────────────────────┐
+         │                                      │
+         ▼                                      ▼
+┌─────────────────┐                   ┌─────────────────┐
+│  SEMANTIC       │                   │  KEYWORD        │
+│  Embed query    │                   │  BM25 search    │
+│  Cosine sim     │                   │  FTS5 index     │
+│  Top 100        │                   │  Top 100        │
+└────────┬────────┘                   └────────┬────────┘
+         │                                      │
+         └──────────────┬───────────────────────┘
+                        │
+                        ▼
+              ┌─────────────────┐
+              │  RRF FUSION     │
+              │  k = 60         │
+              │                 │
+              │  score = Σ 1/(k + rank_i)
+              └────────┬────────┘
+                       │
+                       ▼
+              ┌─────────────────┐
+              │  SCORING        │
+              │                 │
+              │  S = α·sim      │
+              │    + β·importance
+              │    + γ·recency  │
+              │    - δ·decay    │
+              └────────┬────────┘
+                       │
+                       ▼
+                 Top N results
 ```
 
 **Memory Types**:
@@ -190,7 +261,7 @@ Where:
 │                             │                                   │
 │                 ┌───────────▼─────────────┐    ┌─────────┐     │
 │                 │     RANKING             │───►│ Promote │     │
-│                 │ V = w_u*U + w_n*N + ... │    │ to Mind │     │
+│                 │ V = w_u*U + w_n*N + ... │    │ to VMind│     │
 │                 └─────────────────────────┘    └─────────┘     │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────┘
@@ -305,8 +376,9 @@ Query: "database"
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ 2. MIND RETRIEVAL                                            │
+│ 2. VMIND RETRIEVAL                                           │
 │    Query: "skills for database in project context"           │
+│    Method: 768-dim semantic search + BM25 hybrid             │
 │    Result: ["supabase-backend", "drizzle-orm"] (past wins)   │
 └──────────────────────────┬──────────────────────────────────┘
                            │
@@ -320,7 +392,7 @@ Query: "database"
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ 4. SPAWNER MULTI-SEARCH                                      │
-│    Queries: [expanded terms + mind suggestions + analogies]  │
+│    Queries: [expanded terms + vmind suggestions + analogies] │
 │    Results: Deduplicated, scored by frequency + tag match    │
 └──────────────────────────┬──────────────────────────────────┘
                            │
@@ -334,7 +406,7 @@ Query: "database"
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ 6. LEARNING                                                  │
-│    Store: Selection in Mind for future retrieval             │
+│    Store: Selection in VMind for future retrieval            │
 │    Later: Record outcome for salience adjustment             │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -393,12 +465,40 @@ Plan Created
 └─────────────────────────────────────────────────────────────┘
 ```
 
+### The Learning Loop
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         THE LEARNING LOOP                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   1. RETRIEVE                           2. DECIDE                       │
+│   ──────────                            ────────                        │
+│   Query VMind (768-dim                  Use retrieved context           │
+│   semantic search)                      to inform decision              │
+│                                                                         │
+│         ▲                                      │                        │
+│         │                                      │                        │
+│         │                                      ▼                        │
+│                                                                         │
+│   4. LEARN                              3. OBSERVE                      │
+│   ────────                              ──────────                      │
+│   Good outcome → salience ↑             Track outcome quality           │
+│   Bad outcome → salience ↓              (-1.0 to +1.0)                  │
+│                                                                         │
+│   Next retrieval ranks                                                  │
+│   successful patterns higher                                            │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
 ## Data Storage
 
-### Mind MCP
+### VMind MCP
 - **Database**: SQLite with FTS5 at `~/.mind/v2/memories.db`
 - **Embeddings**: nomic-ai/nomic-embed-text-v1.5 (768 dimensions)
 - **Index**: L2-normalized vectors, cosine = dot product
+- **Search**: Hybrid semantic + BM25 with RRF fusion (k=60)
 
 ### Architect MCP
 - **Storage**: JSON files in project `.architect/` directory
@@ -433,7 +533,7 @@ The stack operates in degraded mode when components are unavailable:
 
 | Missing Component | Fallback Behavior |
 |-------------------|-------------------|
-| Mind | Skip memory retrieval, no learning loop |
+| VMind | Skip memory retrieval, no learning loop |
 | Muse | Skip analogy expansion, use domain expansion only |
 | Spawner | Use basic skill matching, no sharp edges |
 | ForgeLoop | Direct execution without phase tracking |
@@ -465,8 +565,16 @@ See [BENCHMARKS.md](BENCHMARKS.md) for detailed performance testing results.
 
 | Operation | Latency (p50) | Latency (p99) |
 |-----------|---------------|---------------|
-| Mind retrieve | 45ms | 120ms |
+| VMind retrieve | 45ms | 120ms |
 | Muse expand | 180ms | 450ms |
 | Spawner search | 25ms | 80ms |
 | Architect plan | 350ms | 900ms |
 | Full pipeline | 800ms | 2.1s |
+
+### VMind Scaling
+
+| Memory Count | Retrieval p50 |
+|--------------|---------------|
+| 1,000 | 45ms |
+| 10,000 | 85ms |
+| 100,000 | 180ms |

@@ -6,6 +6,31 @@
 
 Architect MCP is the brain of the Flow stack. It handles project planning, team coordination, sprint management, and quality assurance. When integrated with other MCPs, it provides intelligent skill loading, learning from past decisions, and continuous improvement.
 
+## Why This Matters
+
+### As a Standalone MCP
+
+Even without the rest of the Flow stack, Architect provides:
+
+1. **Structured project planning**: No more ad-hoc task lists
+2. **Multi-team coordination**: Parallel workstreams with clear ownership
+3. **Quality gates**: Automated checks before marking tasks complete
+4. **Scope enforcement**: Prevents drift during long-running tasks
+5. **Sprint reviews**: PM-level assessments at natural checkpoints
+
+### With the Full Flow Stack
+
+When integrated with VMind, Muse, Spawner, and ForgeLoop:
+
+| Integration | Benefit |
+|-------------|---------|
+| **+ VMind** | Recall what worked in past projects, learn from outcomes |
+| **+ Spawner** | Auto-load relevant skills per team and task type |
+| **+ Muse** | Expand skill search with analogies, find contradictions early |
+| **+ ForgeLoop** | Bounded execution phases with validation tracking |
+
+**The compound effect**: A task like "add authentication" automatically retrieves past auth successes from VMind, loads the auth-complete skill squad from Spawner, checks for contradictions via Muse, and executes in bounded ForgeLoop phases.
+
 ## Key Features
 
 ### Multi-Team Coordination
@@ -116,7 +141,7 @@ architect_enforce_scope(
 
 ### Smart Skill Discovery
 
-When Spawner, Mind, and Muse are available:
+When Spawner, VMind, and Muse are available:
 
 ```python
 # Find best skills for a task
@@ -234,14 +259,14 @@ evaluation = architect_evaluate_plan()
 | `architect_full_pipeline` | End-to-end idea to plan |
 | `architect_validate_idea` | IdeaRalph PMF validation |
 | `architect_generate_prd` | Generate PRD from idea |
-| `architect_load_context` | Load relevant Mind context |
+| `architect_load_context` | Load relevant VMind context |
 | `architect_get_gotchas` | Get sharp edges for stack |
 
 ### Memory Integration
 
 | Tool | Description |
 |------|-------------|
-| `architect_connect_mind` | Connect to Mind MCP |
+| `architect_connect_vmind` | Connect to VMind MCP |
 | `architect_remember` | Store decisions |
 | `architect_log` | Add log entries |
 
@@ -360,7 +385,7 @@ When integrations are unavailable:
 | Missing | Fallback |
 |---------|----------|
 | Spawner | Basic skill mapping from config |
-| Mind | No context retrieval, no learning |
+| VMind | No context retrieval, no learning |
 | IdeaRalph | Skip validation, direct planning |
 
 ### Error Recovery

@@ -8,7 +8,7 @@
 - **Hardware**: Apple M3 Max, 64GB RAM
 - **Python**: 3.12.x
 - **Node.js**: 20.x (Spawner)
-- **Database**: SQLite (Mind)
+- **Database**: SQLite (VMind)
 - **Embedding Model**: nomic-ai/nomic-embed-text-v1.5
 
 ### Test Categories
@@ -20,17 +20,17 @@
 
 ## Individual MCP Results
 
-### Mind MCP
+### VMind MCP
 
 | Operation | p50 | p95 | p99 | Throughput |
 |-----------|-----|-----|-----|------------|
-| `mind_remember` (short text) | 12ms | 25ms | 45ms | 80/sec |
-| `mind_remember` (long text) | 35ms | 65ms | 120ms | 28/sec |
-| `mind_retrieve` (10 results) | 45ms | 85ms | 120ms | 22/sec |
-| `mind_retrieve` (50 results) | 120ms | 220ms | 350ms | 8/sec |
-| `mind_decide` | 18ms | 35ms | 55ms | 55/sec |
-| `mind_reflect` | 280ms | 450ms | 680ms | 3/sec |
-| `mind_conflicts` | 65ms | 120ms | 180ms | 15/sec |
+| `vmind_remember` (short text) | 12ms | 25ms | 45ms | 80/sec |
+| `vmind_remember` (long text) | 35ms | 65ms | 120ms | 28/sec |
+| `vmind_retrieve` (10 results) | 45ms | 85ms | 120ms | 22/sec |
+| `vmind_retrieve` (50 results) | 120ms | 220ms | 350ms | 8/sec |
+| `vmind_decide` | 18ms | 35ms | 55ms | 55/sec |
+| `vmind_reflect` | 280ms | 450ms | 680ms | 3/sec |
+| `vmind_conflicts` | 65ms | 120ms | 180ms | 15/sec |
 
 **Memory Scaling**:
 | Memory Count | Retrieval p50 | Retrieval p99 |
@@ -62,7 +62,7 @@
 **Key Findings**:
 - Multi-mode retrieval is expensive; use selective modes when possible
 - Mutation operators can run in parallel for 3x throughput
-- Promotion to Mind adds network latency (~20ms)
+- Promotion to VMind adds network latency (~20ms)
 
 ### Spawner MCP
 
@@ -135,13 +135,13 @@
 
 ## Integration Performance
 
-### Mind + Muse Integration
+### VMind + Muse Integration
 
 | Workflow | p50 | p95 | p99 |
 |----------|-----|-----|-----|
 | Expand prompt + store fragments | 250ms | 420ms | 650ms |
-| Multi-mode retrieval + Mind query | 320ms | 520ms | 780ms |
-| Generate analogies + store in Mind | 280ms | 450ms | 680ms |
+| Multi-mode retrieval + VMind query | 320ms | 520ms | 780ms |
+| Generate analogies + store in VMind | 280ms | 450ms | 680ms |
 | Full ideation pipeline | 680ms | 1.1s | 1.6s |
 
 ### Architect + Spawner Integration
@@ -186,7 +186,7 @@
 
 | Step | Duration | Cumulative |
 |------|----------|------------|
-| `mind_retrieve` (past patterns) | 45ms | 45ms |
+| `vmind_retrieve` (past patterns) | 45ms | 45ms |
 | `spawner_skills` (search) | 25ms | 70ms |
 | `architect_smart_discover` | 280ms | 350ms |
 | `architect_smart_assign` | 220ms | 570ms |
@@ -202,8 +202,8 @@
 |------|----------|------------|
 | `forgeloop_record_validation` | 25ms | 25ms |
 | `architect_update_task` | 12ms | 37ms |
-| `mind_remember` (outcome) | 35ms | 72ms |
-| `mind_decide` (learning) | 18ms | 90ms |
+| `vmind_remember` (outcome) | 35ms | 72ms |
+| `vmind_decide` (learning) | 18ms | 90ms |
 
 **Total**: ~90ms for outcome tracking
 
@@ -213,9 +213,9 @@
 
 | Step | Duration | Cumulative |
 |------|----------|------------|
-| `mind_reflect` | 280ms | 280ms |
+| `vmind_reflect` | 280ms | 280ms |
 | `muse_find_contradictions` | 180ms | 460ms |
-| `mind_remember` (insights) | 35ms | 495ms |
+| `vmind_remember` (insights) | 35ms | 495ms |
 
 **Total**: ~500ms for reflection cycle
 
@@ -225,7 +225,7 @@
 
 | Scenario | Threads | Operations | Total Time | Ops/sec |
 |----------|---------|------------|------------|---------|
-| Mind retrieval | 10 | 1000 | 5.2s | 192 |
+| VMind retrieval | 10 | 1000 | 5.2s | 192 |
 | Spawner search | 10 | 1000 | 2.8s | 357 |
 | Mixed workload | 10 | 1000 | 8.5s | 118 |
 
@@ -251,7 +251,7 @@
 
 1. **Use selective retrieval modes** in Muse instead of all modes
 2. **Cache Spawner skills** locally after first session load
-3. **Batch Mind operations** when possible (e.g., multiple remembers)
+3. **Batch VMind operations** when possible (e.g., multiple remembers)
 4. **Limit context inclusion** in ForgeLoop prompts for simple tasks
 
 ### For High Throughput
@@ -275,7 +275,7 @@
 | Approach | Time | Skill Match Quality | Context Relevance |
 |----------|------|---------------------|-------------------|
 | Spawner only | 25ms | 72% | N/A |
-| Spawner + Mind | 70ms | 85% | 78% |
+| Spawner + VMind | 70ms | 85% | 78% |
 | Full stack (Smart Discovery) | 280ms | 94% | 92% |
 
 ### Task: Sprint Planning
@@ -284,14 +284,14 @@
 |----------|------|-------------------|---------------|
 | Architect only | 350ms | 6.8/10 | 65% |
 | Architect + Spawner | 450ms | 7.5/10 | 78% |
-| Full stack (with Mind) | 580ms | 8.4/10 | 91% |
+| Full stack (with VMind) | 580ms | 8.4/10 | 91% |
 
 ### Task: Error Resolution
 
 | Approach | Time | First-Fix Rate | Recurrence |
 |----------|------|----------------|------------|
 | ForgeLoop only | 35ms | 68% | 22% |
-| ForgeLoop + Mind | 80ms | 82% | 12% |
+| ForgeLoop + VMind | 80ms | 82% | 12% |
 | Full stack | 180ms | 91% | 5% |
 
 ## Conclusion
@@ -299,7 +299,7 @@
 The Flow stack demonstrates:
 
 1. **Sub-second latencies** for most individual operations
-2. **Linear scaling** with data volume for Mind operations
+2. **Linear scaling** with data volume for VMind operations
 3. **Significant quality improvements** when MCPs work together
 4. **Graceful degradation** when components are unavailable
 5. **Stable performance** under sustained load

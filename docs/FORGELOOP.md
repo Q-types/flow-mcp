@@ -6,6 +6,31 @@
 
 ForgeLoop MCP provides structured execution tracking for AI-assisted development. It manages phases, validates outputs, tracks assumptions, records decisions, and generates bounded prompts that keep agents focused and auditable.
 
+## Why This Matters
+
+### As a Standalone MCP
+
+Even without the rest of the Flow stack, ForgeLoop provides:
+
+1. **Bounded phases**: Clear scope, objectives, and success criteria
+2. **Validation tracking**: Record test/lint/build results automatically
+3. **Assumption documentation**: Track what you're assuming for later verification
+4. **Decision logging**: Record why choices were made
+5. **Scoped prompts**: Generate prompts that prevent scope creep
+
+### With the Full Flow Stack
+
+When integrated with VMind, Muse, Spawner, and Architect:
+
+| Integration | Benefit |
+|-------------|---------|
+| **+ Architect** | Tasks become bounded phases with quality gates |
+| **+ VMind** | Decisions recorded in both local log and global memory |
+| **+ Spawner** | Include relevant gotchas in generated prompts |
+| **+ Muse** | Add contradictions and risks to prompt context |
+
+**The compound effect**: An Architect task becomes a ForgeLoop phase. The bounded prompt includes: phase scope, Spawner gotchas, Muse contradictions, and VMind past learnings. Validation results feed back to Architect quality gates. Decisions are stored locally (auditable) and globally (learnable).
+
 ## Key Features
 
 ### Phase Management
@@ -291,17 +316,17 @@ forgeloop_record_validation(command="pytest", ...)
 architect_update_task(task_id=task.id, status="completed")
 ```
 
-### With Mind
+### With VMind
 
 ```python
-# Record decisions in both ForgeLoop (local) and Mind (global)
+# Record decisions in both ForgeLoop (local) and VMind (global)
 forgeloop_add_decision(
     title="Database Choice",
     decision="PostgreSQL",
     rationale="Relational needs, strong typing"
 )
 
-mind_remember(
+vmind_remember(
     content="Chose PostgreSQL for project X: relational needs, strong typing",
     memory_type="episodic"
 )

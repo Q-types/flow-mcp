@@ -137,18 +137,18 @@ Shows:
 
 ## Integration Points
 
-### With Mind MCP
+### With VMind MCP
 
-If Mind MCP is available:
+If VMind MCP is available:
 
 ```
 # At project start
-architect_connect_mind(user_id="your-uuid")
+architect_connect_vmind(user_id="your-uuid")
 
 # Architect will automatically:
 # - Store project decisions
-# - Retrieve relevant past context
-# - Learn from outcomes
+# - Retrieve relevant past context (via 768-dim semantic search)
+# - Learn from outcomes (salience adjustment)
 ```
 
 ### With Spawner MCP
