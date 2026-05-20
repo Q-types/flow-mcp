@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "muse": {
+      "command": "python",
+      "args": ["-m", "muse_mcp"],
+      "cwd": "/path/to/muse-mcp/src",
+      "env": {
+        "PYTHONPATH": "/path/to/muse-mcp/src",
+        "MUSE_DB_PATH": "~/.muse/muse.db",
+        "MUSE_MODEL": "all-MiniLM-L6-v2"
+      },
+      "description": "Muse MCP - Associative working memory for creative recombination"
+    },
+    "mind": {
+      "command": "python",
+      "args": ["-m", "mind.mcp"],
+      "env": {
+        "MIND_DB_PATH": "~/.mind/mind.db"
+      },
+      "description": "Mind MCP - Long-term semantic memory"
+    }
+  }
+}

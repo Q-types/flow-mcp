@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "architect": {
+      "command": "python",
+      "args": ["-m", "architect_mcp.server"],
+      "cwd": "/Users/q/PythonScript/Python/Vibe/architect-mcp/src",
+      "env": {
+        "PYTHONPATH": "/Users/q/PythonScript/Python/Vibe/architect-mcp/src"
+      }
+    }
+  }
+}
